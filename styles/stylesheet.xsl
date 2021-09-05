@@ -26,27 +26,34 @@
         </head>
         <h3>Table of contents</h3>
         <ol>
-            <xsl:for-each select="section">
-                <li>
-                    <a>
-                        <xsl:attribute name="href">
-                            <xsl:text>#</xsl:text>
-                            <xsl:choose>
-                                <xsl:when test="@id">
-                                    <xsl:value-of select="@id"/>
-                                </xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:value-of select="lower-case(translate(title/text(),' ','-'))"/>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                        </xsl:attribute>
-                        <xsl:value-of select="title"/>
-                    </a>
-                </li>
-            </xsl:for-each>
+            <xsl:apply-templates select="section" mode="toc"/>
         </ol>
         <xsl:apply-templates select="section"/>
     </html>
+</xsl:template>
+
+<xsl:template match="section" mode="toc">
+    <li>
+        <a>
+            <xsl:attribute name="href">
+                <xsl:text>#</xsl:text>
+                <xsl:choose>
+                    <xsl:when test="@id">
+                        <xsl:value-of select="@id"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="lower-case(translate(title/text(),' ','-'))"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
+            <xsl:value-of select="title"/>
+        </a>
+        <xsl:if test="section">
+            <ol>
+                <xsl:apply-templates select="section" mode="toc"/>
+            </ol>
+        </xsl:if>
+    </li>
 </xsl:template>
 
 <xsl:template match="section">
