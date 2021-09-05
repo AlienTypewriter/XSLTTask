@@ -1,24 +1,79 @@
-<xsl:stylesheet version = '1.0'
+<xsl:stylesheet version = '3.0'
      xmlns:xsl='http://www.w3.org/1999/XSL/Transform'>
 
 <xsl:template match="/article">
     <html>
         <head>
-            <title><xsl:value-of select="title"/></title>        
+            <title><xsl:value-of select="title"/></title>
+            <style>
+            ol {
+                counter-reset: item;
+            }
+            ol > li {
+                display: block;
+                position: relative;
+            }
+            ol > li:before {
+                content: counters(item, ".")".";
+                counter-increment: item;
+                position: absolute;
+                margin-right: 100%;
+                right: 10px;
+            }
+            section { padding-inline-start:0.5% }
+            a { color: green }
+            </style>        
         </head>
+        <h3>Table of contents</h3>
+        <ol>
+            <xsl:for-each select="section">
+                <li>
+                    <a>
+                        <xsl:attribute name="href">
+                            <xsl:text>#</xsl:text>
+                            <xsl:choose>
+                                <xsl:when test="@id">
+                                    <xsl:value-of select="@id"/>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:value-of select="lower-case(translate(title/text(),' ','-'))"/>
+                                </xsl:otherwise>
+                            </xsl:choose>
+                        </xsl:attribute>
+                        <xsl:value-of select="title"/>
+                    </a>
+                </li>
+            </xsl:for-each>
+        </ol>
         <xsl:apply-templates select="section"/>
     </html>
 </xsl:template>
 
 <xsl:template match="section">
-    <section style="padding-inline-start:1%">
-        <xsl:if test=".[@id]">
+    <section>
+        <xsl:attribute name="id">
+            <xsl:choose>
+                <xsl:when test="@id">
+                    <xsl:value-of select="@id"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="lower-case(translate(title/text(),' ','-'))"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:attribute>
+        <xsl:apply-templates/>
+    </section>
+</xsl:template>
+
+<xsl:template match="title">
+    <h2>
+        <xsl:if test="@id">
             <xsl:attribute name="id">
                 <xsl:value-of select="@id"/>
             </xsl:attribute>
         </xsl:if>
         <xsl:apply-templates/>
-    </section>
+    </h2>
 </xsl:template>
 
 <xsl:template match="para">
@@ -43,21 +98,10 @@
         <xsl:apply-templates select="para"/>
         <xsl:for-each select="listitem">
             <li>
-                <div>
-                    <xsl:apply-templates/>
-                </div>
+                <xsl:apply-templates/>
             </li>
         </xsl:for-each>
     </ul>
-</xsl:template>
-
-<xsl:template match="title">
-    <h2>
-        <xsl:attribute name="id">
-            <xsl:value-of select="@id"/>
-        </xsl:attribute>
-        <xsl:value-of select="."/>
-    </h2>
 </xsl:template>
 
 <xsl:template match="code">
@@ -74,18 +118,13 @@
 
 <xsl:template match="link">
     <a>
-        <xsl:attribute name="style">
-            <xsl:text>color:green</xsl:text>
-        </xsl:attribute>
         <xsl:attribute name="href">
             <xsl:text>#</xsl:text>
             <xsl:value-of select="@linkend"/>
         </xsl:attribute>
         <xsl:attribute name="title">
             <xsl:variable name="TXT" select="string(@endterm)"/>
-            <!--Couldn't figure out how to do this, leaving this so you know I tried.-->
-            <xsl:value-of select="$TXT"/>
-            <!--<xsl:value-of select="//h2[matches(@id,$TXT)]/text()"/>    doesn't work, dunno why-->
+            <xsl:value-of select="//title[@id=$TXT][1]/text()"/>
         </xsl:attribute>
         <xsl:apply-templates/>
     </a>
@@ -93,9 +132,6 @@
 
 <xsl:template match="ulink">
     <a>
-        <xsl:attribute name="style">
-            <xsl:text>color:green</xsl:text>
-        </xsl:attribute>
         <xsl:attribute name="href">
             <xsl:value-of select="@url"/>
         </xsl:attribute>
