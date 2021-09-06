@@ -24,10 +24,12 @@
             a { color: green }
             </style>        
         </head>
-        <h3>Table of contents</h3>
-        <ol>
-            <xsl:apply-templates select="section" mode="toc"/>
-        </ol>
+        <div>
+            <h3>Table of contents</h3>
+            <ol>
+                <xsl:apply-templates select="section" mode="toc"/>
+            </ol>
+        </div>
         <xsl:apply-templates select="section"/>
     </html>
 </xsl:template>

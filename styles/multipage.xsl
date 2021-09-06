@@ -209,14 +209,35 @@
 
 <xsl:template match="link">
     <a>
-        <xsl:attribute name="href">
-            <xsl:value-of select="@linkend"/>
-            <xsl:text>.html</xsl:text>
-        </xsl:attribute>
-        <xsl:attribute name="title">
-            <xsl:variable name="TXT" select="string(@endterm)"/>
-            <xsl:value-of select="//title[@id=$TXT][1]/text()"/>
-        </xsl:attribute>
+        <xsl:variable name="linkend" select="string(@linkend)"/>
+        <xsl:variable name="element" select="//*[@id=$linkend]"/>
+            <xsl:attribute name="href">
+                <xsl:if test="$element">
+                    <xsl:variable name="pagecontaining" select="$element/ancestor-or-self::*[name()='section'][1]"/>
+                    <xsl:choose>
+                        <xsl:when test="$pagecontaining=/article">
+                            <xsl:text>index</xsl:text>
+                        </xsl:when>
+                        <xsl:when test="$pagecontaining/@id">
+                            <xsl:value-of select="$pagecontaining/@id"/>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="lower-case(translate($pagecontaining/title/text(),' ','-'))"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
+                    <xsl:text>.html</xsl:text>
+                    <xsl:if test="not($linkend=$pagecontaining/@id)">
+                        <xsl:text>#</xsl:text>
+                        <xsl:value-of select="$linkend"/>
+                    </xsl:if>
+                </xsl:if>
+            </xsl:attribute>
+        <xsl:if test="@endterm">
+            <xsl:attribute name="title">
+                <xsl:variable name="endterm" select="string(@endterm)"/>
+                <xsl:value-of select="//title[@id=$endterm][1]/text()"/>
+            </xsl:attribute>
+        </xsl:if>
         <xsl:apply-templates/>
     </a>
 </xsl:template>
