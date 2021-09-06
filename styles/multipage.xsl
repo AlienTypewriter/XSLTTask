@@ -134,7 +134,7 @@
 
 <xsl:template match="title" mode="newpage">
     <head>
-        <title><xsl:value-of select="title"/></title>
+        <title><xsl:value-of select="."/></title>
         <style>
         ol {
             counter-reset: item;
