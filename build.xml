@@ -1,0 +1,32 @@
+<project name="XsltTask" default="TransformMultipart">
+    <property name="xml.dir" value="sources"/>
+    <property name="out.dir" value="output"/>
+    <property name="xsl.dir" value="styles"/> 
+    <property name="lib.dir" value="lib"/>
+
+    <path id="classpath">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete dir="${out.dir}"/>
+    </target>
+    <target name="TransformMultipart" depends="clean">
+        <mkdir dir="${out.dir}"/>
+        <xslt in="${xml.dir}/input.xml" out="${out.dir}/index.html" style="${xsl.dir}/multipage.xsl">
+            <factory name="net.sf.saxon.BasicTransformerFactory"/>
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+        </xslt>
+    </target>
+    <target name="TransformSingle">
+        <mkdir dir="${out.dir}"/>
+        <xslt in="${xml.dir}/input.xml" out="output.html" style="${xsl.dir}/onepage.xsl" force="true">
+            <factory name="net.sf.saxon.BasicTransformerFactory"/>
+            <classpath>
+                <path refid="classpath"/>
+            </classpath>
+        </xslt>
+    </target>
+</project>
